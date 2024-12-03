@@ -1,0 +1,27 @@
+//2.1
+MATCH(m:Movie{released:2019})
+RETURN m
+//2.2
+MATCH(m:Movie{released:2020})
+RETURN m
+//2.3
+MATCH(m:Movie{released:2003})
+RETURN m.title
+//2.4
+MATCH(m:Movie)
+RETURN m.title, m.released, m.tagline
+//2.5
+MATCH(m:Movie)
+RETURN m.title AS `movie title`, m.released AS `released year`, m.tagline AS `tagLine`
+//3.1
+MATCH(p:Person)-[rel:WROTE]->(m:Movie{title:'Top Gun'})
+RETURN p.name
+//3.2
+MATCH(p:Person{name:'Tom Hanks'})-[rel]-(m:Movie)
+RETURN m.title
+//3.3
+MATCH(p:Person{name:'Tom Hanks'})-[rel]->(m:Movie)
+RETURN m.title, type(rel)
+//3.4
+MATCH(p:Person{name:'Tom Hanks'})-[rel:ACTED_IN]->(m:Movie)
+RETURN rel.roles, m.title
