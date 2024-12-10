@@ -21,7 +21,40 @@ MATCH(p:Person{name:'Tom Hanks'})-[rel]-(m:Movie)
 RETURN m.title
 //3.3
 MATCH(p:Person{name:'Tom Hanks'})-[rel]->(m:Movie)
-RETURN m.title, type(rel)
+RETURN m.title, type(rel)  
 //3.4
 MATCH(p:Person{name:'Tom Hanks'})-[rel:ACTED_IN]->(m:Movie)
 RETURN m.title, rel.roles
+//4.1
+MATCH(p:Person)-[rel:ACTED_IN]->(m:Movie)
+WHERE p.name = 'Tom Cruise'
+RETURN m.title
+//4.2
+MATCH(p:Person)
+WHERE p.born >= 1970 and p.born <=1979
+RETURN p.name, p.born
+//4.3
+MATCH (p:Person)-[rel:ACTED_IN]->(m:Movie)
+WHERE p.born > 1960 AND m.title = 'The Matrix'
+RETURN p.name, p.born
+//4.4
+MATCH (p:Person)
+WHERE p.born is null
+RETURN p.name
+//4.5
+MATCH (p:Person)-[rel]->(m:Movie)
+WHERE rel.rating is not null
+RETURN p.name, m.title, rel.rating
+//4.6
+MATCH (p:Person)-[rel:REVIEWED]->(m:Movie)
+WHERE rel.summary CONTAINS 'fun'
+RETURN m.title, rel.summary, rel.rating
+//4.7
+MATCH (a:Person)-[act:ACTED_IN]->(m:Movie)<-[dir:DIRECTED]-(d:Person)
+MATCH (oa:Person)-[:ACTED_IN]->(m)
+WHERE a.name IN d.name AND oa.name <> d.name
+RETURN oa.name, d.name, m.title
+//4.8
+MATCH (p:Person)-[act:ACTED_IN]->(m:Movie)
+WHERE m.title in act.roles
+RETURN m.title, p.name
