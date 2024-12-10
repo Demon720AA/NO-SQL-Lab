@@ -24,4 +24,4 @@ MATCH(p:Person{name:'Tom Hanks'})-[rel]->(m:Movie)
 RETURN m.title, type(rel)
 //3.4
 MATCH(p:Person{name:'Tom Hanks'})-[rel:ACTED_IN]->(m:Movie)
-RETURN rel.roles, m.title
+RETURN m.title, rel.roles
