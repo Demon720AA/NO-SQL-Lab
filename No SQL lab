@@ -58,3 +58,127 @@ RETURN oa.name, d.name, m.title
 MATCH (p:Person)-[act:ACTED_IN]->(m:Movie)
 WHERE m.title in act.roles
 RETURN m.title, p.name
+//ex5.1
+MATCH (gene:Person)-[:ACTED_IN]->(m:Movie)<-[:ACTED_IN]-(co:Person),(director:Person)-[:DIRECTED]->(m)
+WHERE gene.name='Gene Hackman'
+RETURN m.title AS `movie`, director.name AS `director`, co.name AS `co-actors`
+//ex5.2
+MATCH (jame:Person)-[:FOLLOWS]-(p:Person)
+WHERE jame.name='James Thompson'
+RETURN jame, p
+//ex5.3
+MATCH (jame:Person)-[:FOLLOWS*3]-(p:Person)
+WHERE jame.name='James Thompson'
+RETURN jame, p
+//ex5.4
+MATCH (jame:Person)-[:FOLLOWS*1..2]-(p:Person)
+WHERE jame.name='James Thompson'
+RETURN jame, p
+//ex5.5
+MATCH (jame:Person)-[:FOLLOWS*]-(p:Person)
+WHERE jame.name='James Thompson'
+RETURN jame, p
+//ex5.6
+MATCH (p:Person)
+WHERE p.name STARTS  WITH 'Tom'
+OPTIONAL MATCH (p)-[:DIRECTED]->(m:Movie)
+RETURN p.name, m.title
+//ex6.1
+MATCH (p:Person)-[:ACTED_IN]->(m:Movie)
+RETURN p.name AS `actor`, collect(m.title) AS `movie list`
+//ex6.2
+MATCH (tom:Person)-[:ACTED_IN]->(m:Movie)<-[:ACTED_IN]-(p:Person)
+WHERE p.name='Tom Cruise'
+RETURN m.title AS `movie`, collect(tom.name) AS `co-actors`
+//ex6.3
+MATCH (p:Person)-[:REVIEWED]->(m:Movie)
+RETURN m.title AS `movie`,count(p) AS `Number of reviews` ,collect(p.name) AS `reviewers list`
+//ex6.4
+MATCH (director:Person)-[:DIRECTED]->(m:Movie)<-[:ACTED_IN]-(actor:Person)
+RETURN director.name AS `director`, COUNT(actor) AS `number of actor`, COLLECT(actor.name) AS `collab actors`
+//ex6.5
+MATCH (tom:Person)-[:ACTED_IN]->(m:Movie)
+WHERE tom.name= 'Tom Hanks'
+RETURN m{.title,.released} AS `Tom Hanks' movie`
+//ex6.6
+MATCH (tom:Person)-[:ACTED_IN]->(m:Movie)
+WHERE tom.name='Tom Hanks'
+RETURN m.title, m.released, datetime({epochmillis:timestamp()}).year-m.released AS `movieAge`, m.released-tom.born AS `Tom's Age`
+//ex7.1
+MATCH (d:Person)-[:DIRECTED]->(m:Movie)
+WITH d, COUNT(m) AS movieCount
+RETURN d.name AS Director, movieCount AS NumberOfMovies
+//ex7.2
+MATCH (d:Person)-[:DIRECTED]->(m:Movie)
+WITH m, COUNT(d) AS directorCount
+WHERE directorCount > 1
+RETURN m.title AS MovieTitle, directorCount AS NumberOfDirectors
+//ex7.3
+MATCH (a:Person)-[:ACTED_IN]->(m:Movie)
+WITH a, COLLECT(m.title) AS movies, COUNT(m) AS movieCount
+WHERE movieCount = 5
+RETURN a.name AS ActorName, movies AS MoviesList
+//ex7.4
+MATCH (a:Person)-[:ACTED_IN]->(m:Movie)
+WITH a, COLLECT(m.title) AS movies, COUNT(m) AS movieCount
+WHERE movieCount <= 3
+RETURN a.name AS ActorName, movies AS MoviesList
+//ex7.5
+MATCH (a:Person)-[rel:ACTED_IN]->(m:Movie)
+WITH a, m, rel, SIZE(rel.roles) AS roles
+WHERE roles>1
+RETURN a.name, m.title, rel.roles
+//ex7.6
+MATCH (a:Person)-[:ACTED_IN]->(m:Movie)<-[:DIRECTED]-(d:Person)
+WITH a, d, COLLECT(m.title) AS movies
+WHERE SIZE(movies) >= 2
+RETURN a.name AS ActorName, d.name AS DirectorName, movies AS MovieTitles
+//ex7.7
+MATCH (a:Person)-[:ACTED_IN]->(m:Movie)<-[:REVIEWED]-(r:Person)
+WITH m, 
+     COLLECT(a.name) AS ActorNames, 
+     COLLECT(DISTINCT r.name) AS ReviewerNames
+RETURN m.title, ActorNames, ReviewerNames
+//ex7.8
+MATCH (d:Person)-[:DIRECTED]->(m:Movie), (a:Person)-[:ACTED_IN]->(m), (m)<-[rel:REVIEWED]-(:Person)
+WITH m, 
+     COLLECT(DISTINCT d.name) AS Directors, 
+     COLLECT(DISTINCT a.name) AS Actors,
+     rel
+WHERE rel.rating > 80
+RETURN m.title, 
+       Directors, 
+       Actors
+//ex7.9
+MATCH (d:Person)-[:DIRECTED]->(m:Movie)
+WITH m, COUNT(d) AS directorCount
+WHERE directorCount >= 2
+
+OPTIONAL MATCH (a:Person)-[:ACTED_IN]->(m)
+OPTIONAL MATCH (r:Person)-[rel:REVIEWED]->(m)
+
+WITH m.title AS MovieTitle,
+     directorCount AS NumberOfDirectors,
+     COUNT(DISTINCT a) AS NumberOfActors,
+     r
+
+RETURN MovieTitle, 
+       NumberOfDirectors,  
+       r.name
+//ex7.10
+MATCH (d:Person)-[:DIRECTED]->(m:Movie)
+WITH m, COUNT(d) AS directorCount
+WHERE directorCount >= 2
+
+OPTIONAL MATCH (a:Person)-[:ACTED_IN]->(m)
+OPTIONAL MATCH (r:Person)-[rel:REVIEWED]->(m)
+
+WITH m.title AS MovieTitle,
+     directorCount AS NumberOfDirectors,
+     COUNT(DISTINCT a) AS NumberOfActors,
+     r
+
+RETURN MovieTitle, 
+       NumberOfDirectors, 
+       NumberOfActors,
+       r.name
