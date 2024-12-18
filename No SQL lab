@@ -136,7 +136,7 @@ RETURN a.name AS ActorName, d.name AS DirectorName, movies AS MovieTitles
 //ex7.7
 MATCH (a:Person)-[:ACTED_IN]->(m:Movie)<-[:REVIEWED]-(r:Person)
 WITH m, 
-     COLLECT(a.name) AS ActorNames, 
+     COLLECT(DISTINCT a.name) AS ActorNames, 
      COLLECT(DISTINCT r.name) AS ReviewerNames
 RETURN m.title, ActorNames, ReviewerNames
 //ex7.8
@@ -153,15 +153,11 @@ RETURN m.title,
 MATCH (d:Person)-[:DIRECTED]->(m:Movie)
 WITH m, COUNT(d) AS directorCount
 WHERE directorCount >= 2
-
 OPTIONAL MATCH (a:Person)-[:ACTED_IN]->(m)
 OPTIONAL MATCH (r:Person)-[rel:REVIEWED]->(m)
-
-WITH m.title AS MovieTitle,
+WITH r, m.title AS MovieTitle,
      directorCount AS NumberOfDirectors,
-     COUNT(DISTINCT a) AS NumberOfActors,
-     r
-
+     COUNT(DISTINCT a) AS NumberOfActors
 RETURN MovieTitle, 
        NumberOfDirectors,  
        r.name
@@ -169,15 +165,11 @@ RETURN MovieTitle,
 MATCH (d:Person)-[:DIRECTED]->(m:Movie)
 WITH m, COUNT(d) AS directorCount
 WHERE directorCount >= 2
-
 OPTIONAL MATCH (a:Person)-[:ACTED_IN]->(m)
 OPTIONAL MATCH (r:Person)-[rel:REVIEWED]->(m)
-
-WITH m.title AS MovieTitle,
+WITH r, m.title AS MovieTitle,
      directorCount AS NumberOfDirectors,
-     COUNT(DISTINCT a) AS NumberOfActors,
-     r
-
+     COUNT(DISTINCT a) AS NumberOfActors
 RETURN MovieTitle, 
        NumberOfDirectors, 
        NumberOfActors,
