@@ -248,11 +248,11 @@ RETURN m.title, avg(rev.rating) ORDER BY avg(rev.rating) DESC LIMIT 5
 
 //9.1
 CREATE (m:Movie {title: 'Forrest Gump'})
-RETURN m.title AS MovieTitle;
+RETURN m.title AS MovieTitle
 
 //9.2
 CREATE (p:Person {name: 'Robin Wright'})
-RETURN p.name;
+RETURN p.name
 
 //9.3
 MATCH (m:Movie)
@@ -263,13 +263,13 @@ RETURN DISTINCT labels(m) AS Labels;
 //9.4
 MATCH (m:OlderMovie)
 RETURN m.title AS MovieTitle, m.released AS ReleaseYear
-ORDER BY ReleaseYear ASC;
+ORDER BY ReleaseYear ASC
 
 //9.5
 MATCH (p:Person)
 WHERE p.name STARTS WITH 'Robin'
 SET p:Female
-RETURN p.name AS Name;
+RETURN p.name AS Name
 
 //9.6
 MATCH (p:Female)
@@ -284,14 +284,15 @@ RETURN p.name AS Name;
 CALL db.schema.visualization
 
 //9.8
-CREATE (m:Movie {title: 'Forrest Gump', released: 1994, tagline: 'Life is like a box of chocolates… you never know what you’re gonna get.', lengthInMinutes: 142})
-SET m:OlderMovie
-RETURN m;
+MATCH (m:Movie)
+WHERE m.title='Forrest Gump'
+SET m:OlderMovie, m.released = 1994, m.tagline = "Life is like a box of chocolates...you never know what you're gonna get.", m.lengthInMinutes = 142
+RETURN m
 
 //9.10
 MATCH (m:Movie {title: 'Forrest Gump'})
 REMOVE m.lengthInMinutes
-RETURN m;
+RETURN m
 
 //10.1
 MATCH (p:Person), (m:Movie)
@@ -317,9 +318,9 @@ where m.title = "Forrest Gump"
 return p, rel, m
 
 //10.5
-match (p:Person) -[rel:HELPED]- (f:Person)
-set rel.research = "war history"
-return p, rel, f
+MATCH (p:Person)-[rel:HELPED]->(f:Person)
+SET rel.research = "war history"
+RETURN p, rel, f
 
 //10.5.5
 CALL db.schema.visualization()
@@ -328,9 +329,9 @@ CALL db.schema.visualization()
 match (p:Person) -[rel:ACTED_IN]-> (m:Movie {title: "Forrest Gump"})
 with p, rel, m,
 case p.name
-    when "Tom Hanks" then "Forrest Gump"
-    when "Robin Wright" then "Jenny Curran"
-    when "Gary Sinise" then "Lieutenant Dan Taylor"
+    when "Tom Hanks" then ["Forrest Gump"]
+    when "Robin Wright" then ["Jenny Curran"]
+    when "Gary Sinise" then ["Lieutenant Dan Taylor"]
 end as role_play
 set rel.roles = role_play
 return p, rel, m
@@ -340,11 +341,13 @@ match (p:Person) -[rel:ACTED_IN]-> (m:Movie {title: "Forrest Gump"})
 return p.name, rel.roles
 
 //10.8
-match (p:Person) -[rel:ACTED_IN]-> (m:Movie {title: "Forrest Gump"})
-where p.name = "Gary Sinise"
-set rel.roles = "Lt. Dan Taylor"
-return p.name, rel.roles
+MATCH (p:Person) -[rel:ACTED_IN]-> (m:Movie {title: "Forrest Gump"})
+WEHER p.name = "Gary Sinise"
+SET rel.roles = ["Lt. Dan Taylor"]
+RETURN p.name, rel.roles
 
-//10.9.5
-match (p:Person) -[rel:HELPED]- (f:Person)
-return rel.research
+//10.9
+match (p:Person) -[rel:HELPED]-> (f:Person)
+WHERE p.name = "Tom Hanks" and f.name = "Gary Sinise"
+REMOVE rel.research
+return p, rel, f 
