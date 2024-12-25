@@ -278,7 +278,6 @@ RETURN p.name AS Name;
 //9.7
 MATCH (p:Female)
 REMOVE p:Female
-RETURN p.name AS Name;
 
 //9.7.5
 CALL db.schema.visualization
