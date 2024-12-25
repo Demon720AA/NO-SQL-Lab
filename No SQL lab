@@ -250,11 +250,6 @@ RETURN m.title, avg(rev.rating) ORDER BY avg(rev.rating) DESC LIMIT 5
 CREATE (m:Movie {title: 'Forrest Gump'})
 RETURN m.title AS MovieTitle;
 
-//9.10
-MATCH (m:Movie {title: 'Forrest Gump'})
-REMOVE m.lengthInMinutes
-RETURN m;
-
 //9.2
 CREATE (p:Person {name: 'Robin Wright'})
 RETURN p.name;
@@ -291,6 +286,11 @@ CALL db.schema.visualization
 //9.8
 CREATE (m:Movie {title: 'Forrest Gump', released: 1994, tagline: 'Life is like a box of chocolates… you never know what you’re gonna get.', lengthInMinutes: 142})
 SET m:OlderMovie
+RETURN m;
+
+//9.10
+MATCH (m:Movie {title: 'Forrest Gump'})
+REMOVE m.lengthInMinutes
 RETURN m;
 
 //10.1
